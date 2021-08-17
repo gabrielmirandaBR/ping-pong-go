@@ -3,4 +3,4 @@ services:
   web:
     build: .
     ports:
-     - "6060:8080"
+     - "8080:8080"
