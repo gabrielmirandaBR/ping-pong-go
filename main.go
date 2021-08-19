@@ -81,15 +81,19 @@ func getInformationsJSON(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("error:", err)
 	}
 
-	for i := 0; i < len(stores); i += 1 {
-		fmt.Fprintf(
+	for _, store := range stores {
+		_, err := fmt.Fprintf(
 			w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v\n",
-			stores[i].StoreID,
-			stores[i].StoreBrand,
-			stores[i].StoreName,
-			stores[i].StoreAddress.City,
-			stores[i].StoreAddress.State,
-			stores[i].StoreAddress.Street,
+			store.StoreID,
+			store.StoreBrand,
+			store.StoreName,
+			store.StoreAddress.City,
+			store.StoreAddress.State,
+			store.StoreAddress.Street,
 		)
+
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
