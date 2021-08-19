@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Store struct {
@@ -30,10 +31,11 @@ type Employee struct {
 
 func main() {
 	http.HandleFunc("/ping", pingHandler)
-	http.HandleFunc("/stores", getInformationsJSON)
-	http.HandleFunc("/stores/stores?brand={brand_label}", getInformationsJSON)
+	http.HandleFunc("/stores", getAllStores)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.HandleFunc("/stores/", getSpecificStore)
+
+	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
@@ -67,8 +69,9 @@ func readStoresFromArchive() []byte {
 	return byteValueJSON
 }
 
-func getInformationsJSON(w http.ResponseWriter, r *http.Request) {
-	var stores []Store
+var stores []Store
+
+func getAllStores(w http.ResponseWriter, r *http.Request) {
 
 	byteValueJSON := readStoresFromArchive()
 
@@ -78,21 +81,41 @@ func getInformationsJSON(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("error:", err)
 	}
 
-	for i, store := range stores {
-		_, err := fmt.Fprintf(
-			w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v, Employess:[EmployeeID: %v, EmployeeName: %v]\n",
-			store.StoreID,
-			store.StoreBrand,
-			store.StoreName,
-			store.StoreAddress.City,
-			store.StoreAddress.State,
-			store.StoreAddress.Street,
-			store.StoreEmployees[i].EmployeeID,
-			store.StoreEmployees[i].EmployeeName,
-		)
+	for _, store := range stores {
+		for i := range store.StoreEmployees {
+			_, err := fmt.Fprintf(
+				w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v, Employee: [EmployeeID: %v, EmployeeName: %v]\n",
+				store.StoreID,
+				store.StoreBrand,
+				store.StoreName,
+				store.StoreAddress.City,
+				store.StoreAddress.State,
+				store.StoreAddress.Street,
+				store.StoreEmployees[i].EmployeeID,
+				store.StoreEmployees[i].EmployeeName,
+			)
 
-		if err != nil {
-			log.Fatal(err)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+}
+
+func getSpecificStore(w http.ResponseWriter, r *http.Request) {
+	partsOfURL := strings.Split(r.URL.Path, "/")
+
+	if len(partsOfURL) > 3 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	var brand string = partsOfURL[2]
+
+	for _, store := range stores {
+		if store.StoreBrand == brand {
+			json.NewEncoder(w).Encode(store)
+			//fmt.Fprintf(w, "%v\n", store)
 		}
 	}
 }
