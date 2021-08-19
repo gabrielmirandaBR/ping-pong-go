@@ -9,10 +9,6 @@ import (
 	"os"
 )
 
-type Stores struct {
-	Stores []Store `json:"acme-stores"`
-}
-
 type Store struct {
 	StoreID        string         `json:"id"`
 	StoreBrand     string         `json:"brand_label"`
@@ -28,14 +24,17 @@ type StoreAddress struct {
 }
 
 type StoreEmployees struct {
+	Employees []Employee `json:"employees"`
+}
+
+type Employee struct {
 	EmployeeID   string `json:"id"`
 	EmployeeName string `json:"name"`
 }
 
 func main() {
-	getInformationsJSON()
-
 	http.HandleFunc("/ping", pingHandler)
+	http.HandleFunc("/stores", getInformationsJSON)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -56,7 +55,7 @@ func readStoresFromArchive() []byte {
 		fmt.Println("error", err)
 	}
 
-	fmt.Println("Successfully opened json file", jsonFile)
+	fmt.Println("Successfully opened json file")
 
 	byteValueJSON, err := ioutil.ReadAll(jsonFile)
 
@@ -64,15 +63,15 @@ func readStoresFromArchive() []byte {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Successfully readed file in bytes", byteValueJSON)
+	fmt.Println("Successfully readed file in bytes")
 
 	jsonFile.Close()
 
 	return byteValueJSON
 }
 
-func getInformationsJSON() {
-	var stores []Stores
+func getInformationsJSON(w http.ResponseWriter, r *http.Request) {
+	var stores []Store
 
 	byteValueJSON := readStoresFromArchive()
 
@@ -82,5 +81,15 @@ func getInformationsJSON() {
 		fmt.Println("error:", err)
 	}
 
-	fmt.Println(stores)
+	for i := 0; i < len(stores); i += 1 {
+		fmt.Fprintf(
+			w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v\n",
+			stores[i].StoreID,
+			stores[i].StoreBrand,
+			stores[i].StoreName,
+			stores[i].StoreAddress.City,
+			stores[i].StoreAddress.State,
+			stores[i].StoreAddress.Street,
+		)
+	}
 }
