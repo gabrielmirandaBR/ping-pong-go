@@ -6,6 +6,11 @@ import (
 	"net/http"
 )
 
+type store struct {
+	StoreID   string `json:"id"`
+	NameStore string `json:"name"`
+}
+
 func pingHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := fmt.Fprintf(w, "pong")
 
