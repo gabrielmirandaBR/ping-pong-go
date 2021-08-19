@@ -8,20 +8,39 @@ import (
 	"os"
 )
 
+func main() {
+	readStoresFromArchive()
+
+	type StoreAddress struct {
+		City   string `json:"city"`
+		State  string `json:"state"`
+		Street string `json:"street"`
+	}
+
+	type StoreEmployees struct {
+		EmployeeID   string `json:"id"`
+		EmployeeName string `json:"name"`
+	}
+
+	type Store struct {
+		StoreID        string         `json:"id"`
+		StoreBrand     string         `json:"brand_label"`
+		StoreName      string         `json:"name"`
+		StoreAddress   StoreAddress   `json:"address"`
+		StoreEmployees StoreEmployees `json:"employees"`
+	}
+
+	http.HandleFunc("/ping", pingHandler)
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
 func pingHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := fmt.Fprintf(w, "pong")
 
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func main() {
-	readStoresFromArchive()
-
-	http.HandleFunc("/ping", pingHandler)
-
-	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 func readStoresFromArchive() {
@@ -40,5 +59,5 @@ func readStoresFromArchive() {
 
 	fmt.Println(byteValueJSON)
 
-	defer jsonFile.Close()
+	jsonFile.Close()
 }
