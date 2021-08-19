@@ -10,21 +10,17 @@ import (
 )
 
 type Store struct {
-	StoreID        string         `json:"id"`
-	StoreBrand     string         `json:"brand_label"`
-	StoreName      string         `json:"name"`
-	StoreAddress   StoreAddress   `json:"address"`
-	StoreEmployees StoreEmployees `json:"employees"`
+	StoreID        string       `json:"id"`
+	StoreBrand     string       `json:"brand_label"`
+	StoreName      string       `json:"name"`
+	StoreAddress   StoreAddress `json:"address"`
+	StoreEmployees []Employee   `json:"employees"`
 }
 
 type StoreAddress struct {
 	City   string `json:"city"`
 	State  string `json:"state"`
 	Street string `json:"street"`
-}
-
-type StoreEmployees struct {
-	Employees []Employee `json:"employees"`
 }
 
 type Employee struct {
@@ -35,6 +31,7 @@ type Employee struct {
 func main() {
 	http.HandleFunc("/ping", pingHandler)
 	http.HandleFunc("/stores", getInformationsJSON)
+	http.HandleFunc("/stores/stores?brand={brand_label}", getInformationsJSON)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -81,15 +78,17 @@ func getInformationsJSON(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("error:", err)
 	}
 
-	for _, store := range stores {
+	for i, store := range stores {
 		_, err := fmt.Fprintf(
-			w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v\n",
+			w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v, Employess:[EmployeeID: %v, EmployeeName: %v]\n",
 			store.StoreID,
 			store.StoreBrand,
 			store.StoreName,
 			store.StoreAddress.City,
 			store.StoreAddress.State,
 			store.StoreAddress.Street,
+			store.StoreEmployees[i].EmployeeID,
+			store.StoreEmployees[i].EmployeeName,
 		)
 
 		if err != nil {
