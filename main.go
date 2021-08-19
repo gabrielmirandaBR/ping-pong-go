@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -32,9 +33,7 @@ type StoreEmployees struct {
 }
 
 func main() {
-	file := readStoresFromArchive()
-
-	fmt.Println(file)
+	getInformationsJSON()
 
 	http.HandleFunc("/ping", pingHandler)
 
@@ -54,8 +53,10 @@ func readStoresFromArchive() []byte {
 	jsonFile, err := os.Open("acme-stores.json")
 
 	if err != nil {
-		fmt.Println("Ocorreu um erro:", err)
+		fmt.Println("error", err)
 	}
+
+	fmt.Println("Successfully opened json file", jsonFile)
 
 	byteValueJSON, err := ioutil.ReadAll(jsonFile)
 
@@ -63,7 +64,23 @@ func readStoresFromArchive() []byte {
 		log.Fatal(err)
 	}
 
+	fmt.Println("Successfully readed file in bytes", byteValueJSON)
+
 	jsonFile.Close()
 
 	return byteValueJSON
+}
+
+func getInformationsJSON() {
+	var stores []Stores
+
+	byteValueJSON := readStoresFromArchive()
+
+	err := json.Unmarshal([]byte(byteValueJSON), &stores)
+
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	fmt.Println(stores)
 }
