@@ -2,14 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 )
-
-type store struct {
-	StoreID   string `json:"id"`
-	NameStore string `json:"name"`
-}
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := fmt.Fprintf(w, "pong")
@@ -20,7 +17,28 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	readStoresFromArchive()
+
 	http.HandleFunc("/ping", pingHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func readStoresFromArchive() {
+
+	jsonFile, err := os.Open("acme-stores.json")
+
+	if err != nil {
+		fmt.Println("Ocorreu um erro:", err)
+	}
+
+	byteValueJSON, err := ioutil.ReadAll(jsonFile)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(byteValueJSON)
+
+	defer jsonFile.Close()
 }
