@@ -64,7 +64,7 @@ func readStoresFromArchive() []byte {
 func getInformationsJSON() {
 	byteValueJSON := readStoresFromArchive()
 
-	err := json.Unmarshal([]byte(byteValueJSON), &stores)
+	err := json.Unmarshal(byteValueJSON, &stores)
 
 	if err != nil {
 		log.Fatal(err)
