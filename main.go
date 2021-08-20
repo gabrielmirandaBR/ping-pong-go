@@ -31,11 +31,12 @@ type Employee struct {
 
 func main() {
 	http.HandleFunc("/ping", pingHandler)
+
 	http.HandleFunc("/stores", getAllStores)
 
 	http.HandleFunc("/stores/", getSpecificStore)
 
-	log.Fatal(http.ListenAndServe(":8081", nil))
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
@@ -75,47 +76,45 @@ func getAllStores(w http.ResponseWriter, r *http.Request) {
 
 	byteValueJSON := readStoresFromArchive()
 
-	err := json.Unmarshal([]byte(byteValueJSON), &stores)
+	err := json.Unmarshal(byteValueJSON, &stores)
 
 	if err != nil {
-		fmt.Println("error:", err)
+		log.Fatal(err)
 	}
 
-	for _, store := range stores {
-		for i := range store.StoreEmployees {
-			_, err := fmt.Fprintf(
-				w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v, Employee: [EmployeeID: %v, EmployeeName: %v]\n",
-				store.StoreID,
-				store.StoreBrand,
-				store.StoreName,
-				store.StoreAddress.City,
-				store.StoreAddress.State,
-				store.StoreAddress.Street,
-				store.StoreEmployees[i].EmployeeID,
-				store.StoreEmployees[i].EmployeeName,
-			)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
+	if err := json.NewEncoder(w).Encode(stores); err != nil {
+		log.Fatal(err)
 	}
+
+	// for _, store := range stores {
+	// 	for i := range store.StoreEmployees {
+	// 		_, err := fmt.Fprintf(
+	// 			w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v, Employee: [EmployeeID: %v, EmployeeName: %v]\n",
+	// 			store.StoreID,
+	// 			store.StoreBrand,
+	// 			store.StoreName,
+	// 			store.StoreAddress.City,
+	// 			store.StoreAddress.State,
+	// 			store.StoreAddress.Street,
+	// 			store.StoreEmployees[i].EmployeeID,
+	// 			store.StoreEmployees[i].EmployeeName,
+	// 		)
+
+	// 		if err != nil {
+	// 			log.Fatal(err)
+	// 		}
+	// 	}
+	// }
 }
 
 func getSpecificStore(w http.ResponseWriter, r *http.Request) {
 	partsOfURL := strings.Split(r.URL.Path, "/")
 
-	if len(partsOfURL) > 3 {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
 	var brand string = partsOfURL[2]
 
 	for _, store := range stores {
 		if store.StoreBrand == brand {
-			json.NewEncoder(w).Encode(store)
-			//fmt.Fprintf(w, "%v\n", store)
+			fmt.Fprintf(w, "%v\n", store)
 		}
 	}
 }
