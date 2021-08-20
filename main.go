@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -51,24 +50,13 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func readStoresFromArchive() []byte {
-
-	jsonFile, err := os.Open("acme-stores.json")
-
-	if err != nil {
-		fmt.Println("error", err)
-	}
-
-	fmt.Println("Successfully opened json file")
-
-	byteValueJSON, err := ioutil.ReadAll(jsonFile)
+	byteValueJSON, err := ioutil.ReadFile("./acme-stores.json")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Println("Successfully readed file in bytes")
-
-	jsonFile.Close()
 
 	return byteValueJSON
 }
@@ -79,50 +67,42 @@ func getInformationsJSON() {
 	err := json.Unmarshal([]byte(byteValueJSON), &stores)
 
 	if err != nil {
-		fmt.Println("error:", err)
+		log.Fatal(err)
 	}
 }
 
 func getAllStores(w http.ResponseWriter, r *http.Request) {
-	for _, store := range stores {
-		for i := range store.StoreEmployees {
-			_, err := fmt.Fprintf(
-				w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v, Employees:[EmployeeID: %v, EmployeeName: %v]\n",
-				store.StoreID,
-				store.StoreBrand,
-				store.StoreName,
-				store.StoreAddress.City,
-				store.StoreAddress.State,
-				store.StoreAddress.Street,
-				store.StoreEmployees[i].EmployeeID,
-				store.StoreEmployees[i].EmployeeName,
-			)
 
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
+	err := json.NewEncoder(w).Encode(stores)
+
+	if err != nil {
+		fmt.Fprint(w, err)
 	}
+
 }
 
 func getSpecificStore(w http.ResponseWriter, r *http.Request) {
+
 	partsOfURL := strings.Split(r.URL.Path, "/")
 
 	brandStore := partsOfURL[2]
+
+	if len(partsOfURL) > 3 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	var filteredStores []Store
+
 	for _, store := range stores {
-		if store.StoreBrand == brandStore {
-			_, err := fmt.Fprintf(
-				w, "StoreID: %v, StoreName: %v, StoreAddress: %v, %v, %v, [Employess: %v]\n",
-				store.StoreID,
-				store.StoreName,
-				store.StoreAddress.City,
-				store.StoreAddress.State,
-				store.StoreAddress.Street,
-				store.StoreEmployees,
-			)
-			if err != nil {
-				log.Fatal(err)
-			}
+		if brandStore == store.StoreBrand {
+			filteredStores = append(filteredStores, store)
 		}
+	}
+
+	err := json.NewEncoder(w).Encode(filteredStores)
+
+	if err != nil {
+		log.Fatal(err)
 	}
 }
