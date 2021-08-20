@@ -87,7 +87,7 @@ func getAllStores(w http.ResponseWriter, r *http.Request) {
 	for _, store := range stores {
 		for i := range store.StoreEmployees {
 			_, err := fmt.Fprintf(
-				w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v, Employess:[EmployeeID: %v, EmployeeName: %v]\n",
+				w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v, Employees:[EmployeeID: %v, EmployeeName: %v]\n",
 				store.StoreID,
 				store.StoreBrand,
 				store.StoreName,
