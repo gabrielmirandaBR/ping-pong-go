@@ -72,7 +72,7 @@ func readStoresFromArchive() []byte {
 
 var stores []Store
 
-func getAllStores(w http.ResponseWriter, r *http.Request) {
+func getInformationsJSON(w http.ResponseWriter, r *http.Request) {
 
 	byteValueJSON := readStoresFromArchive()
 
@@ -81,11 +81,13 @@ func getAllStores(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getAllStores(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewEncoder(w).Encode(stores); err != nil {
 		log.Fatal(err)
 	}
-
 	// for _, store := range stores {
 	// 	for i := range store.StoreEmployees {
 	// 		_, err := fmt.Fprintf(
@@ -108,8 +110,9 @@ func getAllStores(w http.ResponseWriter, r *http.Request) {
 }
 
 func getSpecificStore(w http.ResponseWriter, r *http.Request) {
-	partsOfURL := strings.Split(r.URL.Path, "/")
 
+	partsOfURL := strings.Split(r.URL.Path, "/")
+	fmt.Println(partsOfURL)
 	var brand string = partsOfURL[2]
 
 	for _, store := range stores {
