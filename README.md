@@ -5,5 +5,7 @@ cd ping-pong-go
 
 docker-compose up
 
-http://localhost:8080/ping
+http://localhost:8081/ping
+http://localhost:8081/stores
+http://localhost:8081/stores/<store_brand que deseja filtrar>
 ```
