@@ -29,7 +29,11 @@ type Employee struct {
 	EmployeeName string `json:"name"`
 }
 
+var stores []Store
+
 func main() {
+	getInformationsJSON()
+
 	http.HandleFunc("/ping", pingHandler)
 
 	http.HandleFunc("/stores", getAllStores)
@@ -69,8 +73,6 @@ func readStoresFromArchive() []byte {
 	return byteValueJSON
 }
 
-var stores []Store
-
 func getInformationsJSON() {
 	byteValueJSON := readStoresFromArchive()
 
@@ -82,8 +84,6 @@ func getInformationsJSON() {
 }
 
 func getAllStores(w http.ResponseWriter, r *http.Request) {
-	getInformationsJSON()
-
 	for _, store := range stores {
 		for i := range store.StoreEmployees {
 			_, err := fmt.Fprintf(
@@ -106,8 +106,6 @@ func getAllStores(w http.ResponseWriter, r *http.Request) {
 }
 
 func getSpecificStore(w http.ResponseWriter, r *http.Request) {
-	getInformationsJSON()
-
 	partsOfURL := strings.Split(r.URL.Path, "/")
 
 	brandStore := partsOfURL[2]
