@@ -33,10 +33,9 @@ func main() {
 	http.HandleFunc("/ping", pingHandler)
 
 	http.HandleFunc("/stores", getAllStores)
-
 	http.HandleFunc("/stores/", getSpecificStore)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
@@ -72,52 +71,60 @@ func readStoresFromArchive() []byte {
 
 var stores []Store
 
-func getInformationsJSON(w http.ResponseWriter, r *http.Request) {
-
+func getInformationsJSON() {
 	byteValueJSON := readStoresFromArchive()
 
-	err := json.Unmarshal(byteValueJSON, &stores)
+	err := json.Unmarshal([]byte(byteValueJSON), &stores)
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("error:", err)
 	}
 }
 
 func getAllStores(w http.ResponseWriter, r *http.Request) {
+	getInformationsJSON()
 
-	if err := json.NewEncoder(w).Encode(stores); err != nil {
-		log.Fatal(err)
+	for _, store := range stores {
+		for i := range store.StoreEmployees {
+			_, err := fmt.Fprintf(
+				w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v, Employess:[EmployeeID: %v, EmployeeName: %v]\n",
+				store.StoreID,
+				store.StoreBrand,
+				store.StoreName,
+				store.StoreAddress.City,
+				store.StoreAddress.State,
+				store.StoreAddress.Street,
+				store.StoreEmployees[i].EmployeeID,
+				store.StoreEmployees[i].EmployeeName,
+			)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
 	}
-	// for _, store := range stores {
-	// 	for i := range store.StoreEmployees {
-	// 		_, err := fmt.Fprintf(
-	// 			w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v, Employee: [EmployeeID: %v, EmployeeName: %v]\n",
-	// 			store.StoreID,
-	// 			store.StoreBrand,
-	// 			store.StoreName,
-	// 			store.StoreAddress.City,
-	// 			store.StoreAddress.State,
-	// 			store.StoreAddress.Street,
-	// 			store.StoreEmployees[i].EmployeeID,
-	// 			store.StoreEmployees[i].EmployeeName,
-	// 		)
-
-	// 		if err != nil {
-	// 			log.Fatal(err)
-	// 		}
-	// 	}
-	// }
 }
 
 func getSpecificStore(w http.ResponseWriter, r *http.Request) {
+	getInformationsJSON()
 
 	partsOfURL := strings.Split(r.URL.Path, "/")
-	fmt.Println(partsOfURL)
-	var brand string = partsOfURL[2]
 
+	brandStore := partsOfURL[2]
 	for _, store := range stores {
-		if store.StoreBrand == brand {
-			fmt.Fprintf(w, "%v\n", store)
+		if store.StoreBrand == brandStore {
+			_, err := fmt.Fprintf(
+				w, "StoreID: %v, StoreName: %v, StoreAddress: %v, %v, %v, [Employess: %v]\n",
+				store.StoreID,
+				store.StoreName,
+				store.StoreAddress.City,
+				store.StoreAddress.State,
+				store.StoreAddress.Street,
+				store.StoreEmployees,
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 }
