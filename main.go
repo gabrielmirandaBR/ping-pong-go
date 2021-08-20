@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Store struct {
@@ -28,12 +29,17 @@ type Employee struct {
 	EmployeeName string `json:"name"`
 }
 
-func main() {
-	http.HandleFunc("/ping", pingHandler)
-	http.HandleFunc("/stores", getInformationsJSON)
-	http.HandleFunc("/stores/stores?brand={brand_label}", getInformationsJSON)
+var stores []Store
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+func main() {
+	getInformationsJSON()
+
+	http.HandleFunc("/ping", pingHandler)
+
+	http.HandleFunc("/stores", getAllStores)
+	http.HandleFunc("/stores/", getSpecificStore)
+
+	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
@@ -67,9 +73,7 @@ func readStoresFromArchive() []byte {
 	return byteValueJSON
 }
 
-func getInformationsJSON(w http.ResponseWriter, r *http.Request) {
-	var stores []Store
-
+func getInformationsJSON() {
 	byteValueJSON := readStoresFromArchive()
 
 	err := json.Unmarshal([]byte(byteValueJSON), &stores)
@@ -77,22 +81,48 @@ func getInformationsJSON(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("error:", err)
 	}
+}
 
-	for i, store := range stores {
-		_, err := fmt.Fprintf(
-			w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v, Employess:[EmployeeID: %v, EmployeeName: %v]\n",
-			store.StoreID,
-			store.StoreBrand,
-			store.StoreName,
-			store.StoreAddress.City,
-			store.StoreAddress.State,
-			store.StoreAddress.Street,
-			store.StoreEmployees[i].EmployeeID,
-			store.StoreEmployees[i].EmployeeName,
-		)
+func getAllStores(w http.ResponseWriter, r *http.Request) {
+	for _, store := range stores {
+		for i := range store.StoreEmployees {
+			_, err := fmt.Fprintf(
+				w, "StoreID: %v, StoreBrand: %v, StoreName: %v, StoreAddress: %v, %v, %v, Employess:[EmployeeID: %v, EmployeeName: %v]\n",
+				store.StoreID,
+				store.StoreBrand,
+				store.StoreName,
+				store.StoreAddress.City,
+				store.StoreAddress.State,
+				store.StoreAddress.Street,
+				store.StoreEmployees[i].EmployeeID,
+				store.StoreEmployees[i].EmployeeName,
+			)
 
-		if err != nil {
-			log.Fatal(err)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+}
+
+func getSpecificStore(w http.ResponseWriter, r *http.Request) {
+	partsOfURL := strings.Split(r.URL.Path, "/")
+
+	brandStore := partsOfURL[2]
+	for _, store := range stores {
+		if store.StoreBrand == brandStore {
+			_, err := fmt.Fprintf(
+				w, "StoreID: %v, StoreName: %v, StoreAddress: %v, %v, %v, [Employess: %v]\n",
+				store.StoreID,
+				store.StoreName,
+				store.StoreAddress.City,
+				store.StoreAddress.State,
+				store.StoreAddress.Street,
+				store.StoreEmployees,
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 }
