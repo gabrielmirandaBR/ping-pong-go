@@ -1,0 +1,98 @@
+[
+  {
+    "id": "75",
+    "code": "107",
+    "brand_label": "acme-inc",
+    "name": "STORE 1",
+    "phone": "5531900000000",
+    "address": {
+      "city": "Belo Horizonte",
+      "state": "MG",
+      "street": "Rua 123"
+    },
+    "employees": [
+      {
+        "id": "1",
+        "code": "000001",
+        "name": "VENDEDOR 1",
+        "phone": "5531900000001"
+      },
+      {
+        "id": "2",
+        "code": "000002",
+        "name": "VENDEDOR 2",
+        "phone": "5531900000002"
+      },
+      {
+        "id": "3",
+        "code": "000003",
+        "name": "VENDEDOR 3",
+        "phone": "5531900000003"
+      }
+    ]
+  },
+  {
+    "id": "76",
+    "code": "108",
+    "brand_label": "acme-inc",
+    "name": "STORE 2",
+    "phone": "5531920000000",
+    "address": {
+      "city": "Belo Horizonte",
+      "state": "MG",
+      "street": "Rua 321"
+    },
+    "employees": [
+      {
+        "id": "4",
+        "code": "000021",
+        "name": "VENDEDOR 1",
+        "phone": "5531920000001"
+      },
+      {
+        "id": "5",
+        "code": "000022",
+        "name": "VENDEDOR 2",
+        "phone": "5531920000002"
+      },
+      {
+        "id": "6",
+        "code": "000023",
+        "name": "VENDEDOR 3",
+        "phone": "5531920000003"
+      }
+    ]
+  },
+    {
+    "id": "75",
+    "code": "107",
+    "brand_label": "acme-inc2",
+    "name": "STORE 1",
+    "phone": "5531900000000",
+    "address": {
+      "city": "Belo Horizonte",
+      "state": "MG",
+      "street": "Rua 123"
+    },
+    "employees": [
+      {
+        "id": "1",
+        "code": "000001",
+        "name": "VENDEDOR 1",
+        "phone": "5531900000001"
+      },
+      {
+        "id": "2",
+        "code": "000002",
+        "name": "VENDEDOR 2",
+        "phone": "5531900000002"
+      },
+      {
+        "id": "3",
+        "code": "000003",
+        "name": "VENDEDOR 3",
+        "phone": "5531900000003"
+      }
+    ]
+  }
+]
