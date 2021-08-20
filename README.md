@@ -3,6 +3,7 @@ git clone git@github.com:gabrielmirandaBR/ping-pong-go.git
 
 cd ping-pong-go
 
+docker-compose build
 docker-compose up
 
 http://localhost:8081/ping
